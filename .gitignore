@@ -175,3 +175,5 @@ cython_debug/
 
 # Generated chromadb dataf folder
 data/
+
+dataset/
