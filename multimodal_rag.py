@@ -8,9 +8,9 @@ load_dotenv()
 
 from datasets import load_dataset
 
-ds = load_dataset("huggan/flowers-102-categories")
+# ds = load_dataset("huggan/flowers-102-categories")
 
-print(ds.num_rows)
+# print(ds.num_rows)
 
 def show_image_from_uri(uri):
     img = Image.open(uri)
@@ -34,4 +34,36 @@ def save_images(dataset, dataset_folder, num_images=1000):
     print(f"Saved the first 1000 images to : {dataset_folder}")
 
 
-save_images(ds, dataset_folder, num_images=1000)
+# save_images(ds, dataset_folder, num_images=1000)
+
+# Setting up ChromaDB
+import chromadb
+from chromadb.utils.embedding_functions import OpenCLIPEmbeddingFunction
+from chromadb.utils.data_loaders import ImageLoader
+
+chroma_client = chromadb.PersistentClient("./data/flower.db")
+
+image_loader = ImageLoader()
+
+embedding_function = OpenCLIPEmbeddingFunction()
+
+flower_collection = chroma_client.get_or_create_collection(
+    "flowers_collection",
+    embedding_function=embedding_function,
+    data_loader=image_loader,
+)
+
+ids=[]
+uris=[]
+
+for i, filename in enumerate(sorted(os.listdir(dataset_folder))):
+    if filename.endswith(".png"):
+        filepath = os.path.join(dataset_folder, filename)
+        ids.append(str(i))
+        uris.append(filepath)
+
+flower_collection.add(ids=ids, uris=uris)
+
+print("Images added to databse")
+
+print(flower_collection.count())
