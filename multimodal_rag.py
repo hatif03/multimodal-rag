@@ -62,8 +62,32 @@ for i, filename in enumerate(sorted(os.listdir(dataset_folder))):
         ids.append(str(i))
         uris.append(filepath)
 
-flower_collection.add(ids=ids, uris=uris)
+# flower_collection.add(ids=ids, uris=uris)
 
-print("Images added to databse")
+# print("Images added to databse")
 
-print(flower_collection.count())
+# print(flower_collection.count())
+
+# Functions for querying the database
+def db_query(query, results=5):
+    print(f"Querying for: {query}")
+    query_results = flower_collection.query(
+        query_texts=[query],
+        n_results=results,
+        include=["uris", "distances"]
+    )
+    return query_results
+
+def print_results(results):
+    for idx, uri in enumerate(results["uris"][0]):
+        print(f"ID: {results['ids'][0][idx]}")
+        print(f"Path: {uri}")
+        print(f"Distance: {results['distances'][0][idx]}")
+        show_image_from_uri(uri)
+        print("\n")
+
+
+# For testing only
+query = "pink flower with yellow center"
+results = db_query(query)
+print_results(results)
